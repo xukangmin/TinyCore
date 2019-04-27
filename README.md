@@ -20,6 +20,11 @@ Power Consumption | min 2.9μA, max 10mA
 
 # Arduino Support
   Currently UART, I2C, SPI, basic timer functions like delay, delayMicroseconds, milis, micros are working, I'm working on adding EEPROM support.
+ 
+# Programmer
+ Attiny 1 Series use UDPI protocol for programming which only use 1 pin for programming which is PA0. 
+ I made a ATMega32u4 firmware and a programmer board [link] for Attiny 1 Series.
+ ATMega328p will also works.
   
 # Installation
 - Install the current upstream Arduino IDE at the 1.8.7 level or later. The current version is at the [Arduino website](http://www.arduino.cc/en/main/software).
