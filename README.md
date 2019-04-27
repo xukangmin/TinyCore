@@ -24,7 +24,7 @@ Power Consumption | min 2.9μA, max 10mA
 # Installation
 - Install the current upstream Arduino IDE at the 1.8.7 level or later. The current version is at the [Arduino website](http://www.arduino.cc/en/main/software).
 - Start Arduino and open Preferences window.
-- Enter ```json file link``` into *Additional Board Manager URLs* field. You can add multiple URLs, separating them with commas.
+- Enter ```https://raw.githubusercontent.com/xukangmin/TinyCore/master/package/package_tinycore_index.json``` into *Additional Board Manager URLs* field. You can add multiple URLs, separating them with commas.
 - Open Boards Manager from Tools > Board menu and install *TinyCore* platform (and don't forget to select your TinyCore board from Tools > Board menu after installation).
 
 # Pin Mapping
