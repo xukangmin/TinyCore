@@ -91,9 +91,12 @@ class HardwareSerial : public Stream
     inline size_t write(long n) { return write((uint8_t)n); }
     inline size_t write(unsigned int n) { return write((uint8_t)n); }
     inline size_t write(int n) { return write((uint8_t)n); }
+    
     // Interrupt handlers - Not intended to be called externally
     inline void _rx_complete_irq(void);
     void _tx_udr_empty_irq(void);
+
+     operator bool() { return true; }
 };
 
 void HardwareSerial::_rx_complete_irq(void)

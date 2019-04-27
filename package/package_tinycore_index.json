@@ -14,12 +14,12 @@
                "architecture":"avr",
                "version":"0.0.1",
                "category":"TinyCore",
-               "url":"https://github.com/xukangmin/TinyCorePackage/raw/master/tinycore-0.1.zip",
-               "archiveFileName":"tinycore-0.1.zip",
-               "checksum":"SHA-256:2c72a699c4b8f7ff161d2703d64227c53ebc75d128b5dfa7f9441e2f11c782c9",
+               "url":"https://github.com/xukangmin/TinyCore/releases/download/0.1/TinyCore-0.1.zip",
+               "archiveFileName":"TinyCore-0.1.zip",
+               "checksum":"SHA-256:7aaa332a0b506a1e61a4ab18ac4c844f389cc8f71a9fd086e0de6caf6c27c098",
                "size":"1849475",
                "help":{
-                  "online":"http://bbb.com/"
+                  "online":"https://github.com/xukangmin/TinyCore"
                },
                "boards":[
                   {
