@@ -5,6 +5,8 @@ They are avaialbe on Tindie.
 ## Tiny Core
 [Image Here]
 
+ Specifications |  .
+------------ | -------------
 Flash (program memory)   | 32/16 KB
 RAM  | 2 KB
 EEPROM | 256 bytes
@@ -15,7 +17,6 @@ PWM Channels | 3
 Peripheral | USART, SPI, I2C, Touch
 Clock | 20 MHz
 Power Consumption | min 2.9μA, max 10mA
-
 
 ### Installation
 - Install the current upstream Arduino IDE at the 1.8.7 level or later. The current version is at the [Arduino website](http://www.arduino.cc/en/main/software).
