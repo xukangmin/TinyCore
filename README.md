@@ -2,8 +2,8 @@ Arduino Core Support for Attiny 1 Series MCU
 ==============================================================================
 # Links
   - [Documentation](https://tinycore.dev)
-  - [Tiny Core 16 Board](https://www.tindie.com/products/xkimi/tiny-core-16-dev-board/)
-  - [Programmer Board](https://www.tindie.com/products/xkimi/tiny-core-programmer/)
+  - [Tiny Core 16 Board]( https://www.tindie.com/products/16834/)
+  - [Programmer Board]( https://www.tindie.com/products/16835/)
   
 # Feature
  Specifications |  .
@@ -38,3 +38,5 @@ Power Consumption | min 2.9μA, max 10mA
 
 
 # To-Do
+EEPROM support
+Bug fix
