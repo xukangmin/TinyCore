@@ -38,5 +38,5 @@ Power Consumption | min 2.9μA, max 10mA
 
 
 # To-Do
-EEPROM support
-Bug fix
+- EEPROM support
+- Bug fix
