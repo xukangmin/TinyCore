@@ -19,6 +19,8 @@
 #define PIN_SPI_MISO  (11)
 #define PIN_SPI_SCK   (12)
 
+#define LED_BUILTIN   (15)
+
 static const uint8_t SS   = PIN_SPI_SS;
 static const uint8_t MOSI = PIN_SPI_MOSI;
 static const uint8_t MISO = PIN_SPI_MISO;
@@ -29,8 +31,6 @@ static const uint8_t SCK  = PIN_SPI_SCK;
 
 static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
-
-#define LED_BUILTIN 13
 
 #define PIN_A0   (10)
 #define PIN_A1   (11)

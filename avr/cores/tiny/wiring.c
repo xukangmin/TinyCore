@@ -36,7 +36,7 @@ ISR(TCA0_LUNF_vect)
 	TCA0_SPLIT_INTFLAGS |= (1 << TCA_SPLIT_LUNF_bp);
 }
 
-unsigned long milis()
+unsigned long millis()
 {
   unsigned long m;
   uint8_t oldSREG = SREG;
@@ -101,6 +101,8 @@ void init(void)
   CCP = CCP_IOREG_gc; // enable write protect
 
   CLKCTRL_MCLKCTRLB = (1 << CLKCTRL_PDIV0_bp) | (1 << CLKCTRL_PEN_bp); // change prescalar to 4, so it's 20Mhz/4 = 5MHz
+
+  //CLKCTRL_MCLKCTRLB = 0x00;
 
   SREG |= (1 << CPU_I_bp); // global enable interrupt
 

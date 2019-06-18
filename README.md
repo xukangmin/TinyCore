@@ -34,7 +34,7 @@ Power Consumption | min 2.9μA, max 10mA
 - Open Boards Manager from Tools > Board menu and install *TinyCore* platform (and don't forget to select your TinyCore board from Tools > Board menu after installation).
 
 # Pin Mapping
-![Pin Mapping](/docs/tinycore16_pinmap.png)
+![Pin Mapping](/docs/images/TinyCore16_Pinout.png)
 
 
 # To-Do

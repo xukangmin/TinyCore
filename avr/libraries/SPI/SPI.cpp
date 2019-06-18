@@ -38,6 +38,10 @@ uint8_t SPIClass::transfer(uint8_t data) {
 	
 }
 
+void SPIClass::setClockDivider(uint8_t div) {
+	
+}
+
 void SPIClass::end()
 {
 	SPI0.CTRLA &= ~SPI_ENABLE_bm;

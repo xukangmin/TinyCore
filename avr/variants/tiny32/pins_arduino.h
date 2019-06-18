@@ -6,7 +6,7 @@
 
 // QFN 20-pin Version
 
-#define NUM_DIGITAL_PINS            17
+#define NUM_DIGITAL_PINS            21
 #define NUM_ANALOG_INPUTS           11
 //#define analogInputToDigitalPin(p)  -1
 
@@ -19,6 +19,8 @@
 #define PIN_SPI_MISO  (11)
 #define PIN_SPI_SCK   (12)
 
+#define LED_BUILTIN   (15)
+
 static const uint8_t SS   = PIN_SPI_SS;
 static const uint8_t MOSI = PIN_SPI_MOSI;
 static const uint8_t MISO = PIN_SPI_MISO;
@@ -30,7 +32,6 @@ static const uint8_t SCK  = PIN_SPI_SCK;
 static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
 
-#define LED_BUILTIN 13
 
 #define PIN_A0   (10)
 #define PIN_A1   (11)
@@ -114,6 +115,10 @@ const uint8_t PROGMEM digital_pin_to_port_PGM[] = {
 	PA, /* 14 */
 	PA,
 	PA, /* 16 */
+	PB,
+	PB,
+	PC,
+	PC, /* 20 */
 };
 
 const uint8_t PROGMEM digital_pin_to_bit_mask_PGM[] = {
@@ -133,7 +138,11 @@ const uint8_t PROGMEM digital_pin_to_bit_mask_PGM[] = {
 	_BV(4),
 	_BV(5), /* 14 */
 	_BV(6),
+	_BV(7), /* 16 */
+	_BV(6), 
 	_BV(7),
+	_BV(4),
+	_BV(5), /* 20 */
 };
 
 const uint8_t PROGMEM digital_pin_to_timer_PGM[] = {
@@ -153,7 +162,11 @@ const uint8_t PROGMEM digital_pin_to_timer_PGM[] = {
 	W04,
 	W05, /* 14 */
 	DAC0,
+	NOT_ON_TIMER, /* 16 */
 	NOT_ON_TIMER,
+	NOT_ON_TIMER,
+	NOT_ON_TIMER,
+	NOT_ON_TIMER, /* 20 */
 };
 
 const uint8_t PROGMEM pin_to_ctrl_PGM[] = {
@@ -173,7 +186,11 @@ const uint8_t PROGMEM pin_to_ctrl_PGM[] = {
 	&PORTA_PIN3CTRL,
 	&PORTA_PIN4CTRL, /* 14 */
 	&PORTA_PIN5CTRL,
-	&PORTA_PIN6CTRL,
+	&PORTA_PIN6CTRL, /* 16 */
+	&PORTB_PIN6CTRL,
+	&PORTB_PIN7CTRL,
+	&PORTC_PIN4CTRL,
+	&PORTC_PIN5CTRL, /* 20 */
 };
 
 #endif

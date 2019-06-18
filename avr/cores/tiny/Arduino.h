@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
+#include <stdio.h>
 
 #include <avr/pgmspace.h>
 #include <avr/io.h>
@@ -191,6 +192,7 @@ extern const uint8_t PROGMEM pin_to_ctrl_PGM[];
 
 
 #ifdef __cplusplus
+#include "WString.h"
 #include "HardwareSerial.h"
 uint16_t makeWord(uint16_t w);
 uint16_t makeWord(byte h, byte l);

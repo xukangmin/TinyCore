@@ -18,6 +18,8 @@ class SPIClass {
 		
 		static uint8_t transfer(uint8_t data);
 		
+		static void setClockDivider(uint8_t div);
+		
 		static void end();
 };
 
