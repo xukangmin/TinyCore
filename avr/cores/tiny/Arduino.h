@@ -78,7 +78,7 @@ void yield(void);
 #define interrupts() sei()
 #define noInterrupts() cli()
 
-#define PRESCALER 4
+#define PRESCALER 1
 
 #define CLK_PER F_CPU / PRESCALER // default prescaler 6, datasheet Page 78, MCLKCCTRLB to Change prescalar
 
