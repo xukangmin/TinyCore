@@ -1,7 +1,7 @@
 Arduino Core Support for Attiny 1 Series MCU
 ==============================================================================
 # Links
-  - [Documentation](https://tinycore.dev)
+  - [Documentation](https://docs.tinycore.dev)
   - [Tiny Core 16 Board]( https://www.tindie.com/products/16834/)
   - [Programmer Board]( https://www.tindie.com/products/16835/)
   
