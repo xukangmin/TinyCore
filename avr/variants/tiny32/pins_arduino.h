@@ -12,6 +12,8 @@
 
 #define digitalPinHasPWM(p)         ((p) == 1 || (p) == 2 || (p) == 3 || (p) == 12 || (p) == 13 || (p) == 14)
 
+#define EXTERNAL_NUM_INTERRUPTS     22
+#define NUM_TOTAL_PINS              22
 //This part has a USI, not an SPI module. Accordingly, there is no MISO/MOSI in hardware. There's a DI and a DO. When the chip is used as master, DI is used as MISO, DO is MOSI; the defines here specify the pins for master mode, as SPI master is much more commonly used in Arduino-land than SPI slave, and these defines are required for compatibility. Be aware of this when using the USI SPI fucntionality (and also, be aware that the MISO and MOSI markings on the pinout diagram in the datasheet are for ISP programming, where the chip is a slave. The pinout diagram included with this core attempts to clarify this)
 
 #define PIN_SPI_SS    (13)
@@ -191,6 +193,59 @@ const uint8_t PROGMEM pin_to_ctrl_PGM[] = {
 	&PORTB_PIN7CTRL,
 	&PORTC_PIN4CTRL,
 	&PORTC_PIN5CTRL, /* 20 */
+};
+
+/* Use this for accessing PINnCTRL register */
+const uint8_t PROGMEM digital_pin_to_bit_position[] = {
+	// Left side, top to bottom
+	PIN4_bp, // 0  PA4
+	PIN5_bp, // 1  PA5
+	PIN6_bp, // 2  PA6
+	PIN7_bp, // 3  PA7
+	PIN7_bp, // 4  PB7
+	PIN6_bp, // 5  PB6
+	PIN5_bp, // 6  PB5
+	PIN4_bp, // 7  PB4
+	PIN3_bp, // 8  PB3
+	PIN2_bp, // 9  PB2
+	PIN1_bp, // 10 PB1
+	PIN0_bp, // 11 PB0
+	PIN0_bp, // 12 PC0
+	PIN1_bp, // 13 PC1
+	PIN2_bp, // 14 PC2
+	PIN3_bp, // 15 PC3
+	PIN4_bp, // 16 PA4
+	PIN5_bp, // 17 PA5
+	PIN1_bp, // 18 PA1
+	PIN2_bp, // 19 PA2
+	PIN3_bp, // 20 PA3
+	PIN0_bp  // 21 PA0
+};
+
+/* Use this for accessing PINnCTRL register */
+const uint8_t PROGMEM digital_pin_to_bit_mask[] = {	
+	PIN4_bm, // 0  PA4
+	PIN5_bm, // 1  PA5
+	PIN6_bm, // 2  PA6
+	PIN7_bm, // 3  PA7
+	PIN7_bm, // 4  PB7
+	PIN6_bm, // 5  PB6
+	PIN5_bm, // 6  PB5
+	PIN4_bm, // 7  PB4
+	PIN3_bm, // 8  PB3
+	PIN2_bm, // 9  PB2
+	PIN1_bm, // 10 PB1
+	PIN0_bm, // 11 PB0
+	PIN0_bm, // 12 PC0
+	PIN1_bm, // 13 PC1
+	PIN2_bm, // 14 PC2
+	PIN3_bm, // 15 PC3
+	PIN4_bm, // 16 PA4
+	PIN5_bm, // 17 PA5
+	PIN1_bm, // 18 PA1
+	PIN2_bm, // 19 PA2
+	PIN3_bm, // 20 PA3
+	PIN0_bm  // 21 PA0
 };
 
 #endif

@@ -59,6 +59,7 @@ typedef uint8_t rx_buffer_index_t;
 #define SERIAL_7O2 0x3A
 #define SERIAL_8O2 0x3B
 
+
 class HardwareSerial : public Stream
 {
   protected:

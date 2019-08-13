@@ -25,12 +25,31 @@ extern "C"{
 
 void yield(void);
 
-#define HIGH 0x1
-#define LOW  0x0
+typedef enum {
+  LOW     = 0,
+  HIGH    = 1,
+  CHANGE  = 2,
+  FALLING = 3,
+  RISING  = 4,
+} PinStatus;
 
-#define INPUT 0x0
-#define OUTPUT 0x1
-#define INPUT_PULLUP 0x2
+typedef enum {
+  INPUT           = 0x0,
+  OUTPUT          = 0x1,
+  INPUT_PULLUP    = 0x2,
+  INPUT_PULLDOWN  = 0x3,
+} PinMode;
+
+typedef enum {
+  LSBFIRST = 0,
+  MSBFIRST = 1,
+} BitOrder;
+// #define HIGH 0x1
+// #define LOW  0x0
+
+// #define INPUT 0x0
+// #define OUTPUT 0x1
+// #define INPUT_PULLUP 0x2
 
 
 #define PI 3.1415926535897932384626433832795
@@ -42,12 +61,12 @@ void yield(void);
 #define SERIAL  0x0
 #define DISPLAY 0x1
 
-#define LSBFIRST 0
-#define MSBFIRST 1
+// #define LSBFIRST 0
+// #define MSBFIRST 1
 
-#define CHANGE 1
-#define FALLING 2
-#define RISING 3
+// #define CHANGE 1
+// #define FALLING 2
+// #define RISING 3
 
 #define NOT_AN_INTERRUPT -1
 
@@ -59,6 +78,15 @@ void yield(void);
 #define INTERNAL4V34 4
 #define INTERNAL1V5 5
 #define INTERNAL INTERVAL1V1
+
+#ifdef EXTENDED_PIN_MODE
+// Platforms who wnat to declare more than 256 pins need to define EXTENDED_PIN_MODE globally
+typedef uint32_t pin_size_t;
+#else
+typedef uint8_t pin_size_t;
+#endif
+
+typedef void (*voidFuncPtr)(void);
 
 
 // undefine stdlib's abs if encountered
@@ -83,8 +111,8 @@ void yield(void);
 #define CLK_PER F_CPU / PRESCALER // default prescaler 6, datasheet Page 78, MCLKCCTRLB to Change prescalar
 
 
-
-
+#define NUM_TOTAL_PORTS 6
+extern const uint8_t PROGMEM digital_pin_to_bit_position[];
 
 
 #if CLK_PER < 1000000L
@@ -130,6 +158,8 @@ unsigned long micros(void);
 void delay(unsigned long);
 void delayMicroseconds(unsigned int us);
 
+void attachInterrupt(pin_size_t interruptNumber, voidFuncPtr callback, PinStatus mode);
+void detachInterrupt(pin_size_t interruptNumber);
 
 void setup(void);
 void loop(void);
@@ -161,6 +191,13 @@ extern const uint8_t PROGMEM pin_to_ctrl_PGM[];
 #define portInputRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_input_PGM + (P))) )
 #define portModeRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_mode_PGM + (P))) )
 #define pinToCtrlRegister(P) ( (volatile uint8_t *)( pgm_read_word( pin_to_ctrl_PGM + (P))) )
+
+#define digitalPinToBitPosition(pin) ( (pin < NUM_TOTAL_PINS) ? pgm_read_byte(digital_pin_to_bit_position + pin) : NOT_A_PIN )
+#define portToPortStruct(port) ( (port < NUM_TOTAL_PORTS) ? ((PORT_t *)&PORTA + port) : NULL)
+#define digitalPinToPortStruct(pin) ( (pin < NUM_TOTAL_PINS) ? ((PORT_t *)&PORTA + digitalPinToPort(pin)) : NULL)
+#define getPINnCTRLregister(port, bit_pos) ( ((port != NULL) && (bit_pos < NOT_A_PIN)) ? ((volatile uint8_t *)&(port->PIN0CTRL) + bit_pos) : NULL )
+#define digitalPinToInterrupt(P) (P)
+
 
 #define NOT_A_PIN 0
 #define NOT_A_PORT 0

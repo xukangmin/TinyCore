@@ -9,6 +9,8 @@
 #define NUM_DIGITAL_PINS            17
 #define NUM_ANALOG_INPUTS           11
 //#define analogInputToDigitalPin(p)  -1
+#define EXTERNAL_NUM_INTERRUPTS     18
+#define NUM_TOTAL_PINS              18
 
 #define digitalPinHasPWM(p)         ((p) == 1 || (p) == 2 || (p) == 3 || (p) == 12 || (p) == 13 || (p) == 14)
 
@@ -175,6 +177,55 @@ const uint8_t PROGMEM pin_to_ctrl_PGM[] = {
 	&PORTA_PIN5CTRL,
 	&PORTA_PIN6CTRL,
 };
+
+/* Use this for accessing PINnCTRL register */
+const uint8_t PROGMEM digital_pin_to_bit_position[] = {
+	// Left side, top to bottom
+	PIN4_bp, // 0  PA4
+	PIN5_bp, // 1  PA5
+	PIN6_bp, // 2  PA6
+	PIN7_bp, // 3  PA7
+	PIN5_bp, // 4  PB5
+	PIN4_bp, // 5  PB4
+	PIN3_bp, // 6  PB3
+	PIN2_bp, // 7  PB2
+	PIN1_bp, // 8  PB1
+	// Right side, bottom to top
+	PIN0_bp, // 9  PB0
+	PIN0_bp, // 10 PC0
+	PIN1_bp, // 11 PC1
+	PIN2_bp, // 12 PC2
+	PIN3_bp, // 13 PC3
+	PIN1_bp, // 14 PA1
+	PIN2_bp, // 15 PA2
+	PIN3_bp, // 16 PA3
+	PIN0_bp  // 17 PA0
+};
+
+/* Use this for accessing PINnCTRL register */
+const uint8_t PROGMEM digital_pin_to_bit_mask[] = {	
+	// Left side, top to bottom
+	PIN4_bm, // 0  PA4
+	PIN5_bm, // 1  PA5
+	PIN6_bm, // 2  PA6
+	PIN7_bm, // 3  PA7
+	PIN5_bm, // 4  PB5
+	PIN4_bm, // 5  PB4
+	PIN3_bm, // 6  PB3
+	PIN2_bm, // 7  PB2
+	PIN1_bm, // 8  PB1
+	// Right side, bottom to top
+	PIN0_bm, // 9  PB0
+	PIN0_bm, // 10 PC0
+	PIN1_bm, // 11 PC1
+	PIN2_bm, // 12 PC2
+	PIN3_bm, // 13 PC3
+	PIN1_bm, // 14 PA1
+	PIN2_bm, // 15 PA2
+	PIN3_bm, // 16 PA3
+	PIN0_bm  // 17 PA0
+};
+
 
 #endif
 

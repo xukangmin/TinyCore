@@ -4,7 +4,7 @@ menu.chip=Chip
 
 tiny16.name=TinyCore 16
 tiny16.upload.maximum_size=16384
-tiny16.upload.maximum_data_size=512
+tiny16.upload.maximum_data_size=2048
 tiny16.upload.tool=avrdude
 tiny16.upload.protocol=jtag2updi
 tiny16.build.board=attiny1616
@@ -15,7 +15,7 @@ tiny16.build.core=tiny
 
 tiny32.name=TinyCore 32
 tiny32.upload.maximum_size=32768
-tiny32.upload.maximum_data_size=512
+tiny32.upload.maximum_data_size=2048
 tiny32.upload.tool=avrdude
 tiny32.upload.protocol=jtag2updi
 tiny32.build.board=attiny3217
