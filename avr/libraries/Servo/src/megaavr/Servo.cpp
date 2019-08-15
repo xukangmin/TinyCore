@@ -1,4 +1,4 @@
-
+//#if defined(ARDUINO_ARCH_MEGAAVR)
 
 #include <Arduino.h>
 #include <Servo.h>
@@ -206,3 +206,5 @@ bool Servo::attached()
 {
   return servos[this->servoIndex].Pin.isActive;
 }
+
+//#endif

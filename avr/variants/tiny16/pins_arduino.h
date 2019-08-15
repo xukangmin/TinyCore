@@ -1,27 +1,58 @@
+/*
+  pins_arduino.h - Pin definition functions for Arduino
+  Part of Arduino - http://www.arduino.cc/
+
+  Copyright (c) 2007 David A. Mellis
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General
+  Public License along with this library; if not, write to the
+  Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+  Boston, MA  02111-1307  USA
+*/
 
 #ifndef Pins_Arduino_h
 #define Pins_Arduino_h
 
 #include <avr/pgmspace.h>
+#include "timers.h"
 
-// QFN 20-pin Version
-
-#define NUM_DIGITAL_PINS            17
 #define NUM_ANALOG_INPUTS           11
-//#define analogInputToDigitalPin(p)  -1
-#define EXTERNAL_NUM_INTERRUPTS     18
+//#define NUM_RESERVED_PINS           0 // (TOSC1/2, VREF, RESET, DEBUG USART Rx/Tx)
+//#define NUM_INTERNALLY_USED_PINS    0 // (2 x Chip select + 2 x UART + 4 x IO + LED_BUILTIN + 1 unused pin)
+#define NUM_I2C_PINS                2 // (SDA / SCL)
+#define NUM_SPI_PINS                3 // (MISO / MOSI / SCK)
 #define NUM_TOTAL_PINS              18
 
-#define digitalPinHasPWM(p)         ((p) == 1 || (p) == 2 || (p) == 3 || (p) == 12 || (p) == 13 || (p) == 14)
+#ifndef NOT_A_PIN
+#define NOT_A_PIN 255
+#endif
 
-//This part has a USI, not an SPI module. Accordingly, there is no MISO/MOSI in hardware. There's a DI and a DO. When the chip is used as master, DI is used as MISO, DO is MOSI; the defines here specify the pins for master mode, as SPI master is much more commonly used in Arduino-land than SPI slave, and these defines are required for compatibility. Be aware of this when using the USI SPI fucntionality (and also, be aware that the MISO and MOSI markings on the pinout diagram in the datasheet are for ISP programming, where the chip is a slave. The pinout diagram included with this core attempts to clarify this)
+#define EXTERNAL_NUM_INTERRUPTS     18
 
-#define PIN_SPI_SS    (13)
-#define PIN_SPI_MOSI  (10)
-#define PIN_SPI_MISO  (11)
-#define PIN_SPI_SCK   (12)
+#if (defined(TCD0) && defined(USE_TIMERD0_PWM))
+#define digitalPinHasPWM(p)         ((p) == 0 || (p) == 1 || (p) == 7 || (p) == 8 || (p) == 9 || (p)==10 || (p)==11 || (p) == 16 )
+#else 
+#define digitalPinHasPWM(p)         ((p) == 0 || (p) == 1 || (p) == 7 || (p) == 8 || (p) == 9 || (p) == 16 )
+#endif
 
-#define LED_BUILTIN   (15)
+#define SPI_MUX		  	(PORTMUX_SPI0_DEFAULT_gc)
+#define PIN_SPI_MISO	(11)
+#define PIN_SPI_SCK		(12)
+#define PIN_SPI_MOSI	(10)
+#define PIN_SPI_SS		(13)
+
+#define MUX_SPI			(SPI_MUX)
+#define SPI_INTERFACES_COUNT	1
 
 static const uint8_t SS   = PIN_SPI_SS;
 static const uint8_t MOSI = PIN_SPI_MOSI;
@@ -31,8 +62,21 @@ static const uint8_t SCK  = PIN_SPI_SCK;
 #define PIN_WIRE_SDA        (2)
 #define PIN_WIRE_SCL        (3)
 
+#define TWI_MUX 		(PORTMUX_TWI0_DEFAULT_gc)
+
 static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
+
+// Mapped to HWSERIAL0 in Serial library
+#define HWSERIAL0 				(&USART0)
+#define HWSERIAL0_DRE_VECTOR 	(USART0_DRE_vect)
+#define HWSERIAL0_DRE_VECTOR_NUM (USART0_DRE_vect_num)
+#define HWSERIAL0_RXC_VECTOR 	(USART0_RXC_vect)
+#define HWSERIAL0_MUX 			(PORTMUX_USART0_DEFAULT_gc)
+#define PIN_WIRE_HWSERIAL0_RX 	(6)
+#define PIN_WIRE_HWSERIAL0_TX 	(7)
+
+#define LED_BUILTIN 15
 
 #define PIN_A0   (10)
 #define PIN_A1   (11)
@@ -58,12 +102,7 @@ static const uint8_t A8 = PIN_A8;
 static const uint8_t A9 = PIN_A9;
 static const uint8_t A10 = PIN_A10;
 
-//#define digitalPinToPCICR(p)    (((p) >= 0 && (p) <= 21) ? (&PCICR) : ((uint8_t *)0))
-//#define digitalPinToPCICRbit(p) (((p) <= 7) ? 2 : (((p) <= 13) ? 0 : 1))
-//#define digitalPinToPCMSK(p)    (((p) <= 7) ? (&PCMSK2) : (((p) <= 13) ? (&PCMSK0) : (((p) <= 21) ? (&PCMSK1) : ((uint8_t *)0))))
-//#define digitalPinToPCMSKbit(p) (((p) <= 7) ? (p) : (((p) <= 13) ? ((p) - 8) : ((p) - 14)))
-
-//#define digitalPinToInterrupt(p)  ((p) == 2 ? 0 : ((p) == 3 ? 1 : NOT_AN_INTERRUPT))
+#define PINS_COUNT		(18u)
 
 #ifdef ARDUINO_MAIN
 
@@ -71,163 +110,168 @@ static const uint8_t A10 = PIN_A10;
 // for the analog output (software PWM).  Analog input
 // pins are a separate set.
 
-// these arrays map port names (e.g. port B) to the
-// appropriate addresses for various functions (e.g. reading
-// and writing)
-const uint16_t PROGMEM port_to_mode_PGM[] = {
-	NOT_A_PORT,
-	(uint16_t) &PORTA_DIR,
-	(uint16_t) &PORTB_DIR,
-	(uint16_t) &PORTC_DIR,
-	NOT_A_PORT,
-};
+// ATtiny1616 / ARDUINO
+//                          _____ 
+//                  VDD   1|*    |20  GND
+// (nSS)  (AIN4) PA4  0~  2|     |19  16~ PA3 (AIN3)(SCK)(EXTCLK)
+//        (AIN5) PA5  1~  3|     |18  15  PA2 (AIN2)(MISO)
+// (DAC)  (AIN6) PA6  2   4|     |17  14  PA1 (AIN1)(MOSI)
+//        (AIN7) PA7  3   5|     |16  17  PA0 (AIN0/nRESET/UPDI)
+//        (AIN8) PB5  4   6|     |15  13  PC3
+//        (AIN9) PB4  5   7|     |14  12  PC2 
+// (RXD) (TOSC1) PB3  6   8|     |13  11~ PC1 (PWM only on 1-series)
+// (TXD) (TOSC2) PB2  7~  9|     |12  10~ PC0 (PWM only on 1-series)
+// (SDA) (AIN10) PB1  8~ 10|_____|11   9~ PB0 (AIN11)(SCL)
+//               
+//
 
-const uint16_t PROGMEM port_to_output_PGM[] = {
-	NOT_A_PORT,
-	(uint16_t) &PORTA_OUT,
-	(uint16_t) &PORTB_OUT,
-	(uint16_t) &PORTC_OUT,
-	NOT_A_PORT,
-};
+/* 
+PIN#   DESC         Pin Name  Other/Sp  ADC0      ADC1      PTC       AC0       AC1       AC2       DAC0      USART0    SPI0      TWI0      TCA(PWM)  TCBn      TCD0      CCL
+0      A0 or SS     PA4                 AIN4      AIN0      X0/Y0                                             XDIR      SS                  WO4                 WOA       LUT0-OUT
+1      A1           PA5       VREFA     AIN5      AIN1      X1/Y1     OUT       AINN0                                                       WO5       TCB0 WO   WOB
+2      A2 or DAC    PA6                 AIN6      AIN2      X2/Y2     AINN0     AINP1     AINP0     OUT
+3      A3           PA7                 AIN7      AIN3      X3/Y3     AINP0     AINP0     AINN0                                                                           LUT1-OUT
+4      LED          PB5       CLKOUT    AIN8                          AINP1               AINP2                                             *WO2
+5                   PB4                 AIN9                          AINN1     AINP3                                                       *WO1                          *LUT0-OUT
+6      RX           PB3       TOSC1                                             OUT                           RxD                           *WO0
+7      TX           PB2       TOSC2 /                                                     OUT                 TxD                           WO2
+                              EVOUT1                                                      
+8      SDA          PB1                 AIN10               X4/Y4     AINP2                                   XCK                 SDA       WO1
+9      SCL          PB0                 AIN11               X5/Y5               AINP2     AINP1               XDIR                SCL       WO0
+10                  PC0                           AIN6                                                                  *SCK                          TCB0 WO   WOC
+11                  PC1                           AIN7                                                                  *MISO                                   WOD       *LUT1-OUT
+12                  PC2       EVOUT2              AIN8                                                                  *MOSI
+13                  PC3                           AIN9                                                                  *SS                 *WO3                          LUT1-IN0
+14     MOSI         PA1                 AIN1                                                                  *TxD      MOSI      *SDA                                    LUT0-IN1
+15     MISO         PA2       EVOUT0    AIN2                                                                  *RxD      MISO      *SCL                                    LUT0-IN2
+16     SCK          PA3       EXTCLK    AIN3                                                                  *XCK      SCK                 WO3       TCB1 WO
+17     UPDI         PA0       RESET/    AIN0                                                                                                                              LUT1-IN0
+                              UPDI        
+	* alternative pin locations			  
+*/
 
-const uint16_t PROGMEM port_to_input_PGM[] = {
-	NOT_A_PORT,
-	(uint16_t) &PORTA_IN,
-	(uint16_t) &PORTB_IN,
-	(uint16_t) &PORTC_IN,
-	NOT_A_PORT,
-};
-
-const uint8_t PROGMEM digital_pin_to_port_PGM[] = {
-	PB, /* 0 */
-	PB,
-	PB,
-	PB,
-	PB,
-	PB,
-	PC,
-	PC,
-	PC, /* 8 */
-	PC,
-	PA,
-	PA,
-	PA,
-	PA,
-	PA, /* 14 */
-	PA,
-	PA, /* 16 */
-};
-
-const uint8_t PROGMEM digital_pin_to_bit_mask_PGM[] = {
-	_BV(3), /* 0 */
-	_BV(2),
-	_BV(1),
-	_BV(0),
-	_BV(4),
-	_BV(5),
-	_BV(0),
-	_BV(1),
-	_BV(2), /* 8 */
-	_BV(3),
-	_BV(1),
-	_BV(2),
-	_BV(3),
-	_BV(4),
-	_BV(5), /* 14 */
-	_BV(6),
-	_BV(7),
-};
-
-const uint8_t PROGMEM digital_pin_to_timer_PGM[] = {
-	NOT_ON_TIMER, /* 0 */
-	W02,
-	W01,
-	W00,
-	NOT_ON_TIMER,
-	NOT_ON_TIMER,
-	NOT_ON_TIMER,
-	NOT_ON_TIMER,
-	NOT_ON_TIMER, /* 8 */
-	NOT_ON_TIMER,
-	NOT_ON_TIMER,
-	NOT_ON_TIMER,
-	W03,
-	W04,
-	W05, /* 14 */
-	DAC0,
-	NOT_ON_TIMER,
-};
-
-const uint8_t PROGMEM pin_to_ctrl_PGM[] = {
-	&PORTB_PIN3CTRL, /* 0 */
-	&PORTB_PIN2CTRL,
-	&PORTB_PIN1CTRL,
-	&PORTB_PIN0CTRL,
-	&PORTB_PIN4CTRL,
-	&PORTB_PIN5CTRL,
-	&PORTC_PIN0CTRL,
-	&PORTC_PIN1CTRL,
-	&PORTC_PIN2CTRL, /* 8 */
-	&PORTC_PIN3CTRL,
-	&PORTA_PIN0CTRL,
-	&PORTA_PIN1CTRL,
-	&PORTA_PIN2CTRL,
-	&PORTA_PIN3CTRL,
-	&PORTA_PIN4CTRL, /* 14 */
-	&PORTA_PIN5CTRL,
-	&PORTA_PIN6CTRL,
+const uint8_t PROGMEM digital_pin_to_port[] = {
+	PB, // 0 PB3
+	PB, // 1 PB2 
+	PB, // 2 PB1
+	PB, // 3 PB0
+	PB, // 4 PB4
+	PB, // 5 PB5
+	PC, // 6 PC0
+	PC, // 7 PC1
+	PC, // 8 PC2
+	PC, // 9 PC3
+	PA, // 10 PA1
+	PA, // 11 PA2
+	PA, // 12 PA3
+	PA, // 13 PA4
+	PA, // 14 PA5
+	PA, // 15 PA6
+	PA, // 16 PA7
 };
 
 /* Use this for accessing PINnCTRL register */
 const uint8_t PROGMEM digital_pin_to_bit_position[] = {
-	// Left side, top to bottom
-	PIN4_bp, // 0  PA4
-	PIN5_bp, // 1  PA5
-	PIN6_bp, // 2  PA6
-	PIN7_bp, // 3  PA7
-	PIN5_bp, // 4  PB5
-	PIN4_bp, // 5  PB4
-	PIN3_bp, // 6  PB3
-	PIN2_bp, // 7  PB2
-	PIN1_bp, // 8  PB1
-	// Right side, bottom to top
-	PIN0_bp, // 9  PB0
-	PIN0_bp, // 10 PC0
-	PIN1_bp, // 11 PC1
-	PIN2_bp, // 12 PC2
-	PIN3_bp, // 13 PC3
-	PIN1_bp, // 14 PA1
-	PIN2_bp, // 15 PA2
-	PIN3_bp, // 16 PA3
-	PIN0_bp  // 17 PA0
+	PIN3_bp, // 0 PB3
+	PIN2_bp, // 1 PB2 
+	PIN1_bp, // 2 PB1
+	PIN0_bp, // 3 PB0
+	PIN4_bp, // 4 PB4
+	PIN5_bp, // 5 PB5
+	PIN0_bp, // 6 PC0
+	PIN1_bp, // 7 PC1
+	PIN2_bp, // 8 PC2
+	PIN3_bp, // 9 PC3
+	PIN1_bp, // 10 PA1
+	PIN2_bp, // 11 PA2
+	PIN3_bp, // 12 PA3
+	PIN4_bp, // 13 PA4
+	PIN5_bp, // 14 PA5
+	PIN6_bp, // 15 PA6
+	PIN7_bp  // 16 PA7
 };
 
 /* Use this for accessing PINnCTRL register */
 const uint8_t PROGMEM digital_pin_to_bit_mask[] = {	
-	// Left side, top to bottom
-	PIN4_bm, // 0  PA4
-	PIN5_bm, // 1  PA5
-	PIN6_bm, // 2  PA6
-	PIN7_bm, // 3  PA7
-	PIN5_bm, // 4  PB5
-	PIN4_bm, // 5  PB4
-	PIN3_bm, // 6  PB3
-	PIN2_bm, // 7  PB2
-	PIN1_bm, // 8  PB1
-	// Right side, bottom to top
-	PIN0_bm, // 9  PB0
-	PIN0_bm, // 10 PC0
-	PIN1_bm, // 11 PC1
-	PIN2_bm, // 12 PC2
-	PIN3_bm, // 13 PC3
-	PIN1_bm, // 14 PA1
-	PIN2_bm, // 15 PA2
-	PIN3_bm, // 16 PA3
-	PIN0_bm  // 17 PA0
+	PIN3_bm, // 0 PB3
+	PIN2_bm, // 1 PB2 
+	PIN1_bm, // 2 PB1
+	PIN0_bm, // 3 PB0
+	PIN4_bm, // 4 PB4
+	PIN5_bm, // 5 PB5
+	PIN0_bm, // 6 PC0
+	PIN1_bm, // 7 PC1
+	PIN2_bm, // 8 PC2
+	PIN3_bm, // 9 PC3
+	PIN1_bm, // 10 PA1
+	PIN2_bm, // 11 PA2
+	PIN3_bm, // 12 PA3
+	PIN4_bm, // 13 PA4
+	PIN5_bm, // 14 PA5
+	PIN6_bm, // 15 PA6
+	PIN7_bm  // 16 PA7
 };
 
 
+const uint8_t PROGMEM digital_pin_to_timer[] = {
+	NOT_ON_TIMER, // 0 PB3
+	TIMERA0, // 1 PB2 
+	TIMERA0, // 2 PB1
+	TIMERA0, // 3 PB0
+	NOT_ON_TIMER, // 4 PB4
+	NOT_ON_TIMER, // 5 PB5
+	#if (defined(TCD0) && defined(USE_TIMERD0_PWM))
+	TIMERD0, 		// 6 PC0
+	TIMERD0, 		// 7 PC1
+	#else
+	NOT_ON_TIMER, 	// 6 PC0
+	NOT_ON_TIMER, 	// 7 PC1
+	#endif
+	NOT_ON_TIMER, // 8 PC2
+	NOT_ON_TIMER, // 9 PC3
+	NOT_ON_TIMER, // 10 PA1
+	NOT_ON_TIMER, // 11 PA2
+	TIMERA0, // 12 PA3
+	TIMERA0, // 13 PA4
+	TIMERA0, // 14 PA5
+	#ifdef DAC0
+    DACOUT, // 15 PA6
+	#else
+	NOT_ON_TIMER, // 15 PA6
+	#endif
+	NOT_ON_TIMER  // 16 PA7
+};
+
+const uint8_t PROGMEM analog_pin_to_channel[] = {
+	NOT_A_PIN, // 0 PB3
+	NOT_A_PIN, // 1 PB2 
+	10, // 2 PB1
+	11, // 3 PB0
+	9, // 4 PB4
+	8, // 5 PB5
+	NOT_A_PIN, // 6 PC0
+	NOT_A_PIN, // 7 PC1
+	NOT_A_PIN, // 8 PC2
+	NOT_A_PIN, // 9 PC3
+	1, // 10 PA1
+	2, // 11 PA2
+	3, // 12 PA3
+	4, // 13 PA4
+	5, // 14 PA5
+	6, // 15 PA6
+	7  // 16 PA7
+};
+
+#define digitalPinToAnalogInput(p)  ((p < NUM_TOTAL_PINS) ? pgm_read_byte(analog_pin_to_channel + p) : NOT_A_PIN )
+
 #endif
+
+
+//extern const uint8_t analog_pin_to_channel[];
+
+//#define digitalPinToAnalogInput(p) 		(((p) < 6 || (p) == 8 || (p) == 9 || (p) > 13) ? pgm_read_byte(analog_pin_to_channel + p) : NOT_A_PIN)
+//#define digitalPinToAnalogInput(p)      ((p<6)?(p+4):(p==17?0:((p>13)?(p-13):((p==8)?10:(p==9?11:NOT_A_PIN)))))
+
 
 // These serial port names are intended to allow libraries and architecture-neutral
 // sketches to automatically default to the correct port name for a particular type
@@ -244,7 +288,7 @@ const uint8_t PROGMEM digital_pin_to_bit_mask[] = {
 //
 // SERIAL_PORT_HARDWARE_OPEN  Hardware serial ports which are open for use.  Their RX & TX
 //                            pins are NOT connected to anything by default.
-#define SERIAL_PORT_MONITOR   Serial
-#define SERIAL_PORT_HARDWARE  Serial
+#define SERIAL_PORT_MONITOR			Serial
+#define SERIAL_PORT_HARDWARE		Serial
 
 #endif

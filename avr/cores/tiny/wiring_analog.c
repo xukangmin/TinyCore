@@ -24,99 +24,80 @@
 
 #include "wiring_private.h"
 #include "pins_arduino.h"
+#include "Arduino.h"
 
 uint8_t analog_reference = DEFAULT;
 
 void analogReference(uint8_t mode)
 {
-	// can't actually set the register here because the default setting
-	// will connect AVCC and the AREF pin, which would cause a short if
-	// there's something connected to AREF.
-	analog_reference = mode;
+	/* Clear relevant settings */
+	ADC0.CTRLC &= ~(ADC_REFSEL_gm);
+	VREF.CTRLA &= ~(VREF_ADC0REFSEL_gm);
+
+	/* If reference NOT using internal reference from VREF */
+	#ifdef EXTERNAL
+	if((mode == EXTERNAL) || (mode == VDD)) {
+	#else
+    if((mode == VDD)) {
+	#endif
+
+		/* Set reference in ADC peripheral */
+		ADC0.CTRLC |= mode;
+
+	/* If reference using internal reference from VREF */
+	} else if (
+	   (mode == INTERNAL0V55)
+		|| (mode == INTERNAL1V1)
+		|| (mode == INTERNAL2V5)
+		|| (mode == INTERNAL4V3)
+		|| (mode == INTERNAL1V5)) {
+
+		/* Set ADC reference to INTERNAL */
+		ADC0.CTRLC |= INTERNAL;
+
+		/* Configure VREF ADC0 reference */
+		VREF.CTRLA |= (mode << VREF_ADC0REFSEL_gp);
+
+	/* Non-standard values / default */
+	} else {
+
+		/* Non valid value will set default */
+		/* Set ADC reference to INTERNAL */
+		ADC0.CTRLC |= INTERNAL;
+
+		/* Configure VREF ADC0 reference */
+		VREF.CTRLA |= (INTERNAL0V55 << VREF_ADC0REFSEL_gp);
+	}
 }
 
 int analogRead(uint8_t pin)
 {
-	uint8_t low, high;
+	pin = digitalPinToAnalogInput(pin);
+	if(pin == NOT_A_PIN) return NOT_A_PIN;
+	
+	/* Check if TWI is operating on double bonded pin (Master Enable is high 
+		in both Master and Slave mode for bus error detection, so this can 
+		indicate an active state for Wire) */
+	if(isDoubleBondedActive(pin)) return 0;
 
-  ADC0_CTRLC = 0x00;
-  VREF_CTRLA = 0x00;
 
-  switch (analog_reference) {
-    case DEFAULT:
-      ADC0_CTRLC |= ADC_REFSEL_VDDREF_gc;
-      break;
-    case INTERNAL0V55:
-      VREF_CTRLA |= VREF_ADC0REFSEL_0V55_gc;
-      ADC0_CTRLC |= ADC_REFSEL_INTREF_gc;
-      break;
-    case INTERNAL1V1:
-      VREF_CTRLA |= VREF_ADC0REFSEL_1V1_gc;
-      ADC0_CTRLC |= ADC_REFSEL_INTREF_gc;
-      break;
-    case INTERNAL2V5:
-      VREF_CTRLA |= VREF_ADC0REFSEL_2V5_gc;
-      ADC0_CTRLC |= ADC_REFSEL_INTREF_gc;
-      break;
-    case INTERNAL4V34:
-      VREF_CTRLA |= VREF_ADC0REFSEL_4V34_gc;
-      ADC0_CTRLC |= ADC_REFSEL_INTREF_gc;
-      break;
-    case INTERNAL1V5:
-      VREF_CTRLA |= VREF_ADC0REFSEL_1V5_gc;
-      ADC0_CTRLC |= ADC_REFSEL_INTREF_gc;
-      break;
-  }
+#if defined(ADC0)
+	/* Reference should be already set up */
+	/* Select channel */
+	ADC0.MUXPOS = (pin << ADC_MUXPOS_gp);
 
-  ADC0_CTRLC |= ADC_PRESC_DIV4_gc;  // 1.25MHz
+	/* Start conversion */
+	ADC0.COMMAND = ADC_STCONV_bm;
 
-  switch (pin) {  // AIN0 is used for programming
-    case PIN_A0:
-      ADC0_MUXPOS = ADC_MUXPOS_AIN1_gc;
-      break;
-    case PIN_A1:
-      ADC0_MUXPOS = ADC_MUXPOS_AIN2_gc;
-      break;
-    case PIN_A2:
-      ADC0_MUXPOS = ADC_MUXPOS_AIN3_gc;
-      break;
-    case PIN_A3:
-      ADC0_MUXPOS = ADC_MUXPOS_AIN4_gc;
-      break;
-    case PIN_A4:
-      ADC0_MUXPOS = ADC_MUXPOS_AIN5_gc;
-      break;
-    case PIN_A5:
-      ADC0_MUXPOS = ADC_MUXPOS_AIN6_gc;
-      break;
-    case PIN_A6:
-      ADC0_MUXPOS = ADC_MUXPOS_AIN7_gc;
-      break;
-    case PIN_A7:
-      ADC0_MUXPOS = ADC_MUXPOS_AIN8_gc;
-      break;
-    case PIN_A8:
-      ADC0_MUXPOS = ADC_MUXPOS_AIN9_gc;
-      break;
-    case PIN_A9:
-      ADC0_MUXPOS = ADC_MUXPOS_AIN10_gc;
-      break;
-    case PIN_A10:
-      ADC0_MUXPOS = ADC_MUXPOS_AIN11_gc;
-      break;
-  }
+	/* Wait for result ready */
+	while(!(ADC0.INTFLAGS & ADC_RESRDY_bm));
 
-	ADC0_CTRLA |= (1 << ADC_ENABLE_bp);
+#else	/* No ADC, return 0 */
+	return 0;
+#endif
 
-  ADC0_COMMAND |= (1 << ADC_STCONV_bp);
-
-  while (bit_is_set(ADC0_COMMAND, ADC_STCONV_bp));
-
-	low  = ADC0_RESL;
-	high = ADC0_RESH;
-
-	// combine the two bytes
-	return (high << 8) | low;
+	/* Combine two bytes */
+	return ADC0.RES;
 }
 
 // Right now, PWM output only works on the pins with
@@ -125,61 +106,109 @@ int analogRead(uint8_t pin)
 // to digital output.
 void analogWrite(uint8_t pin, int val)
 {
+	uint8_t bit_pos  = digitalPinToBitPosition(pin);
+	if(bit_pos == NOT_A_PIN || isDoubleBondedActive(pin)) return;
 	// We need to make sure the PWM output is enabled for those pins
 	// that support it, as we turn it off when digitally reading or
 	// writing with them.  Also, make sure the pin is in output mode
-	// for consistenty with Wiring, which doesn't require a pinMode
+	// for consistently with Wiring, which doesn't require a pinMode
 	// call for the analog output pins.
 	pinMode(pin, OUTPUT);
-	if (val == 0)
-	{
-		digitalWrite(pin, LOW);
-	}
-	else if (val == 255)
-	{
-		digitalWrite(pin, HIGH);
-	}
-	else
-	{
-		switch(digitalPinToTimer(pin))
-		{
-			case W00:
-				TCA0_SPLIT_LCMP0 = val;
-				TCA0_SPLIT_CTRLB |= (1 << TCA_SPLIT_LCMP0EN_bp);
-				break;
-			case W01:
-				TCA0_SPLIT_LCMP1 = val;
-				TCA0_SPLIT_CTRLB |= (1 << TCA_SPLIT_LCMP1EN_bp);
-				break;
-			case W02:
-				TCA0_SPLIT_LCMP2 = val;
-				TCA0_SPLIT_CTRLB |= (1 << TCA_SPLIT_LCMP2EN_bp);
-				break;
-			case W03:
-				TCA0_SPLIT_HCMP0 = val;
-				TCA0_SPLIT_CTRLB |= (1 << TCA_SPLIT_HCMP0EN_bp);
-				break;
-			case W04:
-				TCA0_SPLIT_HCMP1 = val;
-				TCA0_SPLIT_CTRLB |= (1 << TCA_SPLIT_HCMP1EN_bp);
-				break;
-			case W05:
-				TCA0_SPLIT_HCMP2 = val;
-				TCA0_SPLIT_CTRLB |= (1 << TCA_SPLIT_HCMP2EN_bp);
-				break;
-			case DAC0:
-				VREF_CTRLA = VREF_DAC0REFSEL_2V5_gc;
-				DAC0_CTRLA |= (1 << DAC_OUTEN_bp);
-				DAC0_DATA = val;
-				DAC0_CTRLA |= (1 << DAC_ENABLE_bp);
-				break;
-			case NOT_ON_TIMER:
-			default:
-				if (val < 128) {
-					digitalWrite(pin, LOW);
+
+	//if(val < 1){	/* if zero or negative drive digital low */
+
+	//	digitalWrite(pin, LOW);
+
+	//} else if(val > 255){	/* if max or greater drive digital high */
+
+	//	digitalWrite(pin, HIGH);
+
+	//} else {	/* handle pwm to generate analog value */
+	/* Get timer */
+	uint8_t digital_pin_timer =  digitalPinToTimer(pin);
+	uint8_t* timer_cmp_out;
+	
+	//TCB_t *timer_B;
+	/* Find out Port and Pin to correctly handle port mux, and timer. */
+	switch (digital_pin_timer) { //use only low nybble which defines which timer it is
+
+		case TIMERA0:
+			if(val < 1){	/* if zero or negative drive digital low */
+				digitalWrite(pin, LOW);
+			} else if(val > 255){	/* if max or greater drive digital high */
+				digitalWrite(pin, HIGH);
+			} else {
+				/* Calculate correct compare buffer register */
+				if (bit_pos>2) {
+					bit_pos-=3;
+					timer_cmp_out = ((uint8_t*) (&TCA0.SPLIT.HCMP0)) + (bit_pos<<1);
+					(*timer_cmp_out) = (val);
+					TCA0.SPLIT.CTRLB |= (1 << (TCA_SPLIT_HCMP0EN_bp + bit_pos));
 				} else {
-					digitalWrite(pin, HIGH);
+					timer_cmp_out = ((uint8_t*) (&TCA0.SPLIT.LCMP0)) + (bit_pos<<1);
+					(*timer_cmp_out) = (val);
+					TCA0.SPLIT.CTRLB |= (1 << (TCA_SPLIT_LCMP0EN_bp + bit_pos));
 				}
-		}
+			}
+			break;
+		/* None of these parts have a Timer B that gives us PWM on a pin we don't already have it on. 
+		case TIMERB0:
+		case TIMERB1:
+		case TIMERB2:
+		case TIMERB3:
+			
+
+			// Get pointer to timer, TIMERB0 order definition in Arduino.h
+			//assert (((TIMERB0 - TIMERB3) == 2));
+			timer_B = ((TCB_t *)&TCB0 + (digital_pin_timer - TIMERB0));
+
+			// set duty cycle 
+			timer_B->CCMPH = val;
+
+			///Enable Timer Output
+			timer_B->CTRLB |= (TCB_CCMPEN_bm);
+
+			break;
+						*/
+		#ifdef DAC0
+		case DACOUT:
+			DAC0.DATA=val;
+			DAC0.CTRLA=0x41; //OUTEN=1, ENABLE=1
+			break;
+		#endif
+		#if (defined(TCD0) && defined(USE_TIMERD0_PWM))
+		case TIMERD0:
+			if(val < 1){	/* if zero or negative drive digital low */
+				digitalWrite(pin, LOW);
+			} else if(val > 255){	/* if max or greater drive digital high */
+				digitalWrite(pin, HIGH);
+			} else {
+			    if (bit_pos) {
+			    	TCD0.CMPBSET=255-val;
+			    } else {
+			    	TCD0.CMPASET=val;
+			    }
+				if (!(TCD0.FAULTCTRL & (1<<(6+bit_pos)))) { //bitpos will be 0 or 1 for TIMERD pins
+					//if not active, we need to activate it, which produces a glitch in the PWM 
+					TCD0.CTRLA=0x10;//stop the timer
+					while(!(TCD0.STATUS&0x01)) {;} // wait until it's actually stopped
+					_PROTECTED_WRITE(TCD0.FAULTCTRL,TCD0.FAULTCTRL|(1<<6+bit_pos)); 
+					TCD0.CTRLA=0x11; //reenable it
+				}
+			}
+			break;
+
+		#endif
+
+		/* If non timer pin, or unknown timer definition.	*/
+		/* do a digital write	*/
+		case NOT_ON_TIMER:
+		default:
+			if (val < 128) {
+				digitalWrite(pin, LOW);
+			} else {
+				digitalWrite(pin, HIGH);
+			}
+			break;
 	}
 }

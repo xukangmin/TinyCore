@@ -1,253 +1,180 @@
+/*
+  Arduino.h - Main include file for the Arduino SDK
+  Copyright (c) 2005-2013 Arduino Team.  All right reserved.
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
 #ifndef Arduino_h
 #define Arduino_h
 
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include <math.h>
-#include <stdio.h>
+#include "api/ArduinoAPI.h"
 
 #include <avr/pgmspace.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <util/delay.h>
-
-#include "binary.h"
-
 
 #ifdef __cplusplus
 extern "C"{
 #endif
 
+/* Analog reference options */
 
+/* Change in mega4809: two places to define analog reference
+ - VREF peripheral defines internal reference
+ - analog peripherals define internal/Vdd/external
+*/
 
-#define ATTINY_CORE 1
+ // internal from VREF
 
-void yield(void);
+ /* Values shifted to avoid clashing with ADC REFSEL defines
+	Will shift back in analog_reference function
+  */
+#define INTERNAL0V55 (VREF_ADC0REFSEL_0V55_gc >> VREF_ADC0REFSEL_gp)
+#define INTERNAL1V1 (VREF_ADC0REFSEL_1V1_gc >> VREF_ADC0REFSEL_gp)
+#define INTERNAL2V5 (VREF_ADC0REFSEL_2V5_gc >> VREF_ADC0REFSEL_gp)
+#define INTERNAL4V3 (VREF_ADC0REFSEL_4V34_gc >> VREF_ADC0REFSEL_gp)
+#define INTERNAL1V5 (VREF_ADC0REFSEL_1V5_gc >> VREF_ADC0REFSEL_gp)
 
-typedef enum {
-  LOW     = 0,
-  HIGH    = 1,
-  CHANGE  = 2,
-  FALLING = 3,
-  RISING  = 4,
-} PinStatus;
-
-typedef enum {
-  INPUT           = 0x0,
-  OUTPUT          = 0x1,
-  INPUT_PULLUP    = 0x2,
-  INPUT_PULLDOWN  = 0x3,
-} PinMode;
-
-typedef enum {
-  LSBFIRST = 0,
-  MSBFIRST = 1,
-} BitOrder;
-// #define HIGH 0x1
-// #define LOW  0x0
-
-// #define INPUT 0x0
-// #define OUTPUT 0x1
-// #define INPUT_PULLUP 0x2
-
-
-#define PI 3.1415926535897932384626433832795
-#define HALF_PI 1.5707963267948966192313216916398
-#define TWO_PI 6.283185307179586476925286766559
-#define DEG_TO_RAD 0.017453292519943295769236907684886
-#define RAD_TO_DEG 57.295779513082320876798154814105
-
-#define SERIAL  0x0
-#define DISPLAY 0x1
-
-// #define LSBFIRST 0
-// #define MSBFIRST 1
-
-// #define CHANGE 1
-// #define FALLING 2
-// #define RISING 3
-
-#define NOT_AN_INTERRUPT -1
-
-// ADC definitions
-#define DEFAULT 0
-#define INTERNAL0V55 1
-#define INTERNAL1V1 2
-#define INTERNAL2V5 3
-#define INTERNAL4V34 4
-#define INTERNAL1V5 5
-#define INTERNAL INTERVAL1V1
-
-#ifdef EXTENDED_PIN_MODE
-// Platforms who wnat to declare more than 256 pins need to define EXTENDED_PIN_MODE globally
-typedef uint32_t pin_size_t;
-#else
-typedef uint8_t pin_size_t;
+#define DEFAULT     INTERNAL0V55
+#define INTERNAL    ADC_REFSEL_INTREF_gc
+#define VDD         ADC_REFSEL_VDDREF_gc
+#ifdef ADC_REFSEL_VREFA_gc
+#define EXTERNAL    ADC_REFSEL_VREFA_gc
 #endif
 
-typedef void (*voidFuncPtr)(void);
-
-
-// undefine stdlib's abs if encountered
-#ifdef abs
-#undef abs
-#endif
-
-#define min(a,b) ((a)<(b)?(a):(b))
-#define max(a,b) ((a)>(b)?(a):(b))
-#define abs(x) ((x)>0?(x):-(x))
-#define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
-#define round(x)     ((x)>=0?(long)((x)+0.5):(long)((x)-0.5))
-#define radians(deg) ((deg)*DEG_TO_RAD)
-#define degrees(rad) ((rad)*RAD_TO_DEG)
-#define sq(x) ((x)*(x))
+#define VCC_5V0 2
+#define VCC_3V3 1
+#define VCC_1V8 0
 
 #define interrupts() sei()
 #define noInterrupts() cli()
 
-#define PRESCALER 1
 
-#define CLK_PER F_CPU / PRESCALER // default prescaler 6, datasheet Page 78, MCLKCCTRLB to Change prescalar
-
-
-#define NUM_TOTAL_PORTS 6
-extern const uint8_t PROGMEM digital_pin_to_bit_position[];
-
-
-#if CLK_PER < 1000000L
-//Prevent a divide by 0 is
-#warning Clocks per microsecond < 1. To prevent divide by 0, it is rounded up to 1.
-
-#define clockCyclesPerMicrosecond() 1L
-#else
-#define clockCyclesPerMicrosecond() ( CLK_PER / 1000000L )
+// avr-libc defines _NOP() since 1.6.2
+#ifndef _NOP
+#define _NOP() do { __asm__ volatile ("nop"); } while (0)
 #endif
 
-#define clockCyclesToMicroseconds(a) ( (a) / clockCyclesPerMicrosecond() )
-#define microsecondsToClockCycles(a) ( (a) * clockCyclesPerMicrosecond() )
+/* Allows performing a correction on the CPU value using the signature row 
+	values indicating oscillator error provided from the device manufacturer */
+#define PERFORM_SIGROW_CORRECTION_F_CPU 0
 
-#define lowByte(w) ((uint8_t) ((w) & 0xff))
-#define highByte(w) ((uint8_t) ((w) >> 8))
+/* Variable containing corrected F_CPU value, after checks for safe operating
+	frequency vs supply voltage, oscillator fuse setting and MCLK divider.
+	Also includes the correction from signature row values if above #define
+	PERFORM_SIGROW_CORRECTION_F_CPU = 1 */
+extern uint32_t F_CPU_CORRECTED;
 
-#define bitRead(value, bit) (((value) >> (bit)) & 0x01)
-#define bitSet(value, bit) ((value) |= (1UL << (bit)))
-#define bitClear(value, bit) ((value) &= ~(1UL << (bit)))
-#define bitWrite(value, bit, bitvalue) (bitvalue ? bitSet(value, bit) : bitClear(value, bit))
-
-
-typedef unsigned int word;
-
-#define bit(b) (1UL << (b))
-
-typedef uint8_t boolean;
-typedef uint8_t byte;
-
-void init(void);
-
-unsigned long pulseIn(uint8_t pin, uint8_t state, unsigned long timeout);
-void pinMode(uint8_t, uint8_t);
-void digitalWrite(uint8_t, uint8_t);
-int digitalRead(uint8_t);
-int analogRead(uint8_t);
-void analogReference(uint8_t mode);
-void analogWrite(uint8_t, int);
-
-unsigned long millis(void);
-unsigned long micros(void);
-void delay(unsigned long);
-void delayMicroseconds(unsigned int us);
-
-void attachInterrupt(pin_size_t interruptNumber, voidFuncPtr callback, PinStatus mode);
-void detachInterrupt(pin_size_t interruptNumber);
-
-void setup(void);
-void loop(void);
+uint16_t clockCyclesPerMicrosecondComp(uint32_t clk);
+uint16_t clockCyclesPerMicrosecond();
+unsigned long clockCyclesToMicroseconds(unsigned long cycles);
+unsigned long microsecondsToClockCycles(unsigned long microseconds);
 
 // Get the bit location within the hardware port of the given virtual pin.
 // This comes from the pins_*.c file for the active board configuration.
 
-#define analogInPinToBit(P) (P)
-
-extern const uint16_t PROGMEM port_to_mode_PGM[];
-extern const uint16_t PROGMEM port_to_input_PGM[];
-extern const uint16_t PROGMEM port_to_output_PGM[];
-
-extern const uint8_t PROGMEM digital_pin_to_port_PGM[];
-extern const uint8_t PROGMEM digital_pin_to_bit_mask_PGM[];
-extern const uint8_t PROGMEM digital_pin_to_timer_PGM[];
-extern const uint8_t PROGMEM pin_to_ctrl_PGM[];
+extern const uint8_t PROGMEM digital_pin_to_port[];
+extern const uint8_t PROGMEM digital_pin_to_bit_mask[];
+extern const uint8_t PROGMEM digital_pin_to_bit_position[];
+extern const uint8_t PROGMEM digital_pin_to_timer[];
 
 // Get the bit location within the hardware port of the given virtual pin.
 // This comes from the pins_*.c file for the active board configuration.
 //
 // These perform slightly better as macros compared to inline functions
 //
-#define digitalPinToPort(P) ( pgm_read_byte( digital_pin_to_port_PGM + (P) ) )
-#define digitalPinToBitMask(P) ( pgm_read_byte( digital_pin_to_bit_mask_PGM + (P) ) )
-#define digitalPinToTimer(P) ( pgm_read_byte( digital_pin_to_timer_PGM + (P) ) )
-#define analogInPinToBit(P) (P)
-#define portOutputRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_output_PGM + (P))) )
-#define portInputRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_input_PGM + (P))) )
-#define portModeRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_mode_PGM + (P))) )
-#define pinToCtrlRegister(P) ( (volatile uint8_t *)( pgm_read_word( pin_to_ctrl_PGM + (P))) )
+#define NOT_A_PIN 255
+#define NOT_A_PORT 255
+#define NOT_AN_INTERRUPT 255
 
+#define PA 0
+#define PB 1
+#define PC 2
+#define PD 3
+#define PE 4
+#define PF 5
+#define NUM_TOTAL_PORTS 6
+
+#define NOT_ON_TIMER 0
+#define TIMERA0 1
+#define TIMERB0 2
+#define TIMERB1 3
+#define TIMERB2 4
+#define TIMERB3 5
+#define TIMERD0 8
+#define DACOUT 9
+
+void setup_timers();
+bool isDoubleBondedActive(uint8_t pin);
+
+#define digitalPinToPort(pin) ( (pin < NUM_TOTAL_PINS) ? pgm_read_byte(digital_pin_to_port + pin) : NOT_A_PIN )
 #define digitalPinToBitPosition(pin) ( (pin < NUM_TOTAL_PINS) ? pgm_read_byte(digital_pin_to_bit_position + pin) : NOT_A_PIN )
+#define analogPinToBitPosition(pin) ( (digitalPinToAnalogInput(pin)!=NOT_A_PIN) ? pgm_read_byte(digital_pin_to_bit_position + pin + 0) : NOT_A_PIN ) 
+#define digitalPinToBitMask(pin) ( (pin < NUM_TOTAL_PINS) ? pgm_read_byte(digital_pin_to_bit_mask + pin) : NOT_A_PIN )
+#define analogPinToBitMask(pin) ( (digitalPinToAnalogInput(pin)!=NOT_A_PIN) ? pgm_read_byte(digital_pin_to_bit_mask + pin + 0) : NOT_A_PIN )
+#define digitalPinToTimer(pin) ( (pin < NUM_TOTAL_PINS) ? pgm_read_byte(digital_pin_to_timer + pin) : NOT_ON_TIMER )
+
 #define portToPortStruct(port) ( (port < NUM_TOTAL_PORTS) ? ((PORT_t *)&PORTA + port) : NULL)
 #define digitalPinToPortStruct(pin) ( (pin < NUM_TOTAL_PINS) ? ((PORT_t *)&PORTA + digitalPinToPort(pin)) : NULL)
 #define getPINnCTRLregister(port, bit_pos) ( ((port != NULL) && (bit_pos < NOT_A_PIN)) ? ((volatile uint8_t *)&(port->PIN0CTRL) + bit_pos) : NULL )
 #define digitalPinToInterrupt(P) (P)
 
+#define portOutputRegister(P) ( (volatile uint8_t *)( &portToPortStruct(P)->OUT ) )
+#define portInputRegister(P) ( (volatile uint8_t *)( &portToPortStruct(P)->IN ) )
+#define portModeRegister(P) ( (volatile uint8_t *)( &portToPortStruct(P)->DIR ) )
 
-#define NOT_A_PIN 0
-#define NOT_A_PORT 0
+//#defines to identify part families
+#if defined(__AVR_ATtiny3217__) || defined(__AVR_ATtiny1617__) || defined(__AVR_ATtiny817__) || defined(__AVR_ATtiny417__)
+#define __AVR_ATtinyx17__
+#define __AVR_ATtinyxy7__
+#elif defined(__AVR_ATtiny3207__) || defined(__AVR_ATtiny1607__) || defined(__AVR_ATtiny807__) || defined(__AVR_ATtiny407__)
+#define __AVR_ATtinyx07__
+#define __AVR_ATtinyxy7__
+#elif defined(__AVR_ATtiny3216__) || defined(__AVR_ATtiny1616__) || defined(__AVR_ATtiny816__) || defined(__AVR_ATtiny416__)
+#define __AVR_ATtinyx16__
+#define __AVR_ATtinyxy6__
+#elif defined(__AVR_ATtiny1606__) || defined(__AVR_ATtiny806__) || defined(__AVR_ATtiny406__)
+#define __AVR_ATtinyx06__
+#define __AVR_ATtinyxy6__
+#elif defined(__AVR_ATtiny214__) || defined(__AVR_ATtiny1614__) || defined(__AVR_ATtiny814__) || defined(__AVR_ATtiny414__)
+#define __AVR_ATtinyx14__
+#define __AVR_ATtinyxy4__
+#elif defined(__AVR_ATtiny204__) || defined(__AVR_ATtiny804__) || defined(__AVR_ATtiny404__) || defined(__AVR_ATtiny1604__)
+#define __AVR_ATtinyx04__
+#define __AVR_ATtinyxy4__
+#elif defined(__AVR_ATtiny212__) || defined(__AVR_ATtiny412__)
+#define __AVR_ATtinyx12__
+#define __AVR_ATtinyxy2__
+#elif defined(__AVR_ATtiny202__) || defined(__AVR_ATtiny402__)
+#define __AVR_ATtinyx02__
+#define __AVR_ATtinyxy2__
+#else
+#error "Can't-happen: unknown chip somehow being used"
+#endif
 
-#define PA 1
-#define PB 2
-#define PC 3
-#define PD 4
+#define MEGATINYCORE
 
-#define NOT_ON_TIMER 0
-// #define TIMER0A 1
-// #define TIMER0B 2
-// #define TIMER1A 3
-// #define TIMER1B 4
-// #define TIMER1D 5
-
-#define W00 1
-#define W01 2
-#define W02 3
-#define W03 4
-#define W04 5
-#define W05 6
-#define DAC0 7
-
-#include "pins_arduino.h"
 #ifdef __cplusplus
 } // extern "C"
 #endif
 
-
 #ifdef __cplusplus
-#include "WString.h"
-#include "HardwareSerial.h"
-uint16_t makeWord(uint16_t w);
-uint16_t makeWord(byte h, byte l);
-
-#define word(...) makeWord(__VA_ARGS__)
-
-unsigned long pulseIn(uint8_t pin, uint8_t state, unsigned long timeout = 1000000L);
-unsigned long pulseInLong(uint8_t pin, uint8_t state, unsigned long timeout = 1000000L);
-
-void tone(uint8_t _pin, unsigned long frequency, unsigned long duration = 0);
-void noTone(uint8_t _pin = 255);
-
-// WMath prototypes
-long random(long);
-long random(long, long);
-void randomSeed(unsigned int);
-long map(long, long, long, long, long);
+#include "UART.h"
 
 #endif
 
+#include "pins_arduino.h"
 #endif

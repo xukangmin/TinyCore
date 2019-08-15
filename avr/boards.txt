@@ -12,6 +12,8 @@ tiny16.build.mcu=attiny1616
 tiny16.build.variant=tiny16
 tiny16.build.f_cpu=20000000L
 tiny16.build.core=tiny
+tiny16.build.dacvref=-DDACVREF=3
+tiny16.build.extra_flags=-DMILLIS_USE_TIMERA0 -DNO_EXTERNAL_I2C_PULLUP -DUSE_TIMERD0_PWM {build.dacvref}
 
 tiny32.name=TinyCore 32
 tiny32.upload.maximum_size=32768
