@@ -40,9 +40,9 @@
 #define EXTERNAL_NUM_INTERRUPTS     18
 
 #if (defined(TCD0) && defined(USE_TIMERD0_PWM))
-#define digitalPinHasPWM(p)         ((p) == 0 || (p) == 1 || (p) == 7 || (p) == 8 || (p) == 9 || (p)==10 || (p)==11 || (p) == 16 )
+#define digitalPinHasPWM(p)         ((p) == 1 || (p) == 2 || (p) == 3 || (p) == 6 || (p) == 7 || (p)==12 || (p)==13 || (p) == 14 )
 #else 
-#define digitalPinHasPWM(p)         ((p) == 0 || (p) == 1 || (p) == 7 || (p) == 8 || (p) == 9 || (p) == 16 )
+#define digitalPinHasPWM(p)         ((p) == 1 || (p) == 2 || (p) == 3 || (p) == 12 || (p) == 13 || (p) == 14 )
 #endif
 
 #define SPI_MUX		  	(PORTMUX_SPI0_DEFAULT_gc)
@@ -73,8 +73,8 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #define HWSERIAL0_DRE_VECTOR_NUM (USART0_DRE_vect_num)
 #define HWSERIAL0_RXC_VECTOR 	(USART0_RXC_vect)
 #define HWSERIAL0_MUX 			(PORTMUX_USART0_DEFAULT_gc)
-#define PIN_WIRE_HWSERIAL0_RX 	(6)
-#define PIN_WIRE_HWSERIAL0_TX 	(7)
+#define PIN_WIRE_HWSERIAL0_RX 	(0)
+#define PIN_WIRE_HWSERIAL0_TX 	(1)
 
 #define LED_BUILTIN 15
 
