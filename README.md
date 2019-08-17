@@ -34,16 +34,6 @@ EEPROM | :heavy_check_mark:
 NeoPixel | :heavy_check_mark:
 E-ink | :hourglass_flowing_sand:
 Motor | :hourglass_flowing_sand:
-
-
-EEPROM | 256 bytes
-Bootloader | No
-GPIO Pins | 18
-ADC Channels | 10
-PWM Channels | 3
-Peripheral | USART, SPI, I2C, Touch
-Clock | 20 MHz
-Power Consumption | min 2.9μA, max 10mA
  
 # Programmer
  Attiny 1 Series use UDPI protocol for programming which only use 1 pin for programming which is PA0. 
