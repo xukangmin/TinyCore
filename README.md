@@ -3,6 +3,7 @@ Arduino Core Support for Attiny 1 Series MCU
 # Links
   - [Documentation](https://docs.tinycore.dev)
   - [Tiny Core 16 Board]( https://www.tindie.com/products/16834/)
+  - [Tiny Core 32 Board]( https://www.tindie.com/products/17279/)
   - [Programmer Board]( https://www.tindie.com/products/16835/)
   
 # Feature
@@ -20,7 +21,29 @@ Clock | 20 MHz
 Power Consumption | min 2.9μA, max 10mA
 
 # Arduino Support
-  Currently UART, I2C, SPI, basic timer functions like delay, delayMicroseconds, milis, micros are working, I'm working on adding EEPROM support.
+ Function |  .
+------------ | -------------
+UART   | :heavy_check_mark:
+GPIO  | :heavy_check_mark:
+ADC | :heavy_check_mark:
+SPI | :heavy_check_mark:
+I²C | :heavy_check_mark:
+DAC | :heavy_check_mark:
+Servo | :heavy_check_mark:
+EEPROM | :heavy_check_mark:
+NeoPixel | :heavy_check_mark:
+E-ink | :hourglass_flowing_sand:
+Motor | :hourglass_flowing_sand:
+
+
+EEPROM | 256 bytes
+Bootloader | No
+GPIO Pins | 18
+ADC Channels | 10
+PWM Channels | 3
+Peripheral | USART, SPI, I2C, Touch
+Clock | 20 MHz
+Power Consumption | min 2.9μA, max 10mA
  
 # Programmer
  Attiny 1 Series use UDPI protocol for programming which only use 1 pin for programming which is PA0. 
@@ -34,9 +57,11 @@ Power Consumption | min 2.9μA, max 10mA
 - Open Boards Manager from Tools > Board menu and install *TinyCore* platform (and don't forget to select your TinyCore board from Tools > Board menu after installation).
 
 # Pin Mapping
+
+- Tiny Core 16 Pinout
+
 ![Pin Mapping](avr/docs/images/TinyCore16_Pinout.png)
 
+- Tiny Core 32 Pinout
 
-# To-Do
-- EEPROM support
-- Bug fix
+![Pin Mapping](avr/docs/images/TinyCore32_Pinout.png)
