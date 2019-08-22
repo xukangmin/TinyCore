@@ -406,9 +406,20 @@ void init()
 
 #endif
 
-	#if (HWSERIAL0_MUX!=0 || SPI_MUX!=0 ||TWI_MUX!=0)
-		PORTMUX.CTRLB=HWSERIAL0_MUX|SPI_MUX|TWI_MUX; //Set PORTMUX
+    // alternative pins for TWI and UART are conflicting, so MUX settings must be separated
+	
+	#if (HWSERIAL0_MUX!=0)
+		PORTMUX.CTRLB |= HWSERIAL0_MUX;
 	#endif
+
+	#if (SPI_MUX!=0)
+		PORTMUX.CTRLB |= SPI_MUX;
+	#endif
+
+	#if (TWI_MUX!=0)
+		PORTMUX.CTRLB |= TWI_MUX;
+	#endif
+
 
 	setup_timers();
 

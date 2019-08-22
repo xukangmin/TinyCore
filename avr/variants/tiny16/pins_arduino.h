@@ -262,6 +262,26 @@ const uint8_t PROGMEM analog_pin_to_channel[] = {
 	7  // 16 PA7
 };
 
+const uint8_t PROGMEM touch_pin_to_channel[] = {
+	NOT_A_PIN, // 0 PB3
+	NOT_A_PIN, // 1 PB2 
+	4, // 2 PB1
+	5, // 3 PB0
+	13, // 4 PB4
+	12, // 5 PB5
+	6, // 6 PC0
+	7, // 7 PC1
+	8, // 8 PC2
+	9, // 9 PC3
+	NOT_A_PIN, // 10 PA1
+	NOT_A_PIN, // 11 PA2
+	NOT_A_PIN, // 12 PA3
+	0, // 13 PA4
+	1, // 14 PA5
+	2, // 15 PA6
+	3  // 16 PA7
+};
+
 #define digitalPinToAnalogInput(p)  ((p < NUM_TOTAL_PINS) ? pgm_read_byte(analog_pin_to_channel + p) : NOT_A_PIN )
 
 #endif

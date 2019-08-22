@@ -90,7 +90,7 @@ extern const uint8_t PROGMEM digital_pin_to_port[];
 extern const uint8_t PROGMEM digital_pin_to_bit_mask[];
 extern const uint8_t PROGMEM digital_pin_to_bit_position[];
 extern const uint8_t PROGMEM digital_pin_to_timer[];
-
+extern const uint8_t PROGMEM touch_pin_to_channel[];
 // Get the bit location within the hardware port of the given virtual pin.
 // This comes from the pins_*.c file for the active board configuration.
 //
@@ -121,6 +121,7 @@ void setup_timers();
 bool isDoubleBondedActive(uint8_t pin);
 
 #define digitalPinToPort(pin) ( (pin < NUM_TOTAL_PINS) ? pgm_read_byte(digital_pin_to_port + pin) : NOT_A_PIN )
+#define digitalPinToTouchPin(pin) ( (pin < NUM_TOTAL_PINS) ? pgm_read_byte(touch_pin_to_channel + pin) : NOT_A_PIN )
 #define digitalPinToBitPosition(pin) ( (pin < NUM_TOTAL_PINS) ? pgm_read_byte(digital_pin_to_bit_position + pin) : NOT_A_PIN )
 #define analogPinToBitPosition(pin) ( (digitalPinToAnalogInput(pin)!=NOT_A_PIN) ? pgm_read_byte(digital_pin_to_bit_position + pin + 0) : NOT_A_PIN ) 
 #define digitalPinToBitMask(pin) ( (pin < NUM_TOTAL_PINS) ? pgm_read_byte(digital_pin_to_bit_mask + pin) : NOT_A_PIN )

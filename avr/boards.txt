@@ -1,5 +1,3 @@
-# Overhauled summer 2015 by Dr. Azzy (Spence Konde) and again in early 2016 to add support for more chips. 
-
 menu.chip=Chip
 
 tiny16.name=TinyCore 16
@@ -25,5 +23,5 @@ tiny32.build.mcu=attiny3217
 tiny32.build.variant=tiny32
 tiny32.build.f_cpu=20000000L
 tiny32.build.core=tiny
-tiny16.build.dacvref=-DDACVREF=2
-tiny16.build.extra_flags=-DMILLIS_USE_TIMERA0 -DNO_EXTERNAL_I2C_PULLUP -DUSE_TIMERD0_PWM {build.dacvref}
+tiny32.build.dacvref=-DDACVREF=2
+tiny32.build.extra_flags=-DMILLIS_USE_TIMERA0 -DNO_EXTERNAL_I2C_PULLUP -DUSE_TIMERD0_PWM {build.dacvref}

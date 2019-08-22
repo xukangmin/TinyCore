@@ -54,6 +54,10 @@ TwoWire::TwoWire()
 
 // Public Methods //////////////////////////////////////////////////////////////
 
+void TwoWire::useAlternatePins(){
+	PORTMUX.CTRLB |= PORTMUX_TWI0_ALTERNATE_gc;
+}
+
 void TwoWire::begin(void)
 {
 	rxBufferIndex = 0;

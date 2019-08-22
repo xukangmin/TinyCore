@@ -58,6 +58,7 @@ class TwoWire : public HardwareI2C
     void setClock(uint32_t);
     void beginTransmission(uint8_t);
     void beginTransmission(int);
+    void useAlternatePins();
     uint8_t endTransmission(void);
     uint8_t endTransmission(bool);
     uint8_t requestFrom(uint8_t, size_t);
