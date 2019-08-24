@@ -2,6 +2,38 @@
 #include "TinyTouch.h"
 #include "Arduino.h"
 
+volatile uint8_t TinyTouch::touch_postprocess_request = 0;
+volatile uint8_t TinyTouch::time_to_measure_touch_flag = 0;
+
+uint8_t TinyTouch::interrupt_cnt = 0;
+
+
+ISR(ADC0_RESRDY_vect)
+{
+	qtm_t161x_ptc_handler_eoc();
+}
+
+ISR(RTC_CNT_vect)
+{
+
+	/* Insert your RTC Compare interrupt handling code */
+	TinyTouch::touch_timer_handler();
+
+	/* Compare interrupt flag has to be cleared manually */
+	RTC.INTFLAGS = RTC_CMP_bm;
+}
+
+static void TinyTouch::touch_timer_handler(void)
+{
+	interrupt_cnt++;
+	if (interrupt_cnt >= DEF_TOUCH_MEASUREMENT_PERIOD_MS) {
+		interrupt_cnt = 0;
+		/* Count complete - Measure touch sensors */
+		time_to_measure_touch_flag = 1u;
+		qtm_update_qtlib_timer(DEF_TOUCH_MEASUREMENT_PERIOD_MS);
+	}
+}
+
 TinyTouch::TinyTouch()
 {
   	while (RTC.STATUS > 0) { /* Wait for all register to be synchronized */
@@ -37,8 +69,25 @@ void TinyTouch::begin() // default initializer
 }
 
 void TinyTouch::begin(uint8_t *pinList, uint16_t totalNumPins) {
-
+	
+	uint16_t    sensor_nodes;
+	touch_ret_t touch_ret = TOUCH_SUCCESS;
+	PORT_t* port;
+	uint8_t bit_pos;
+	volatile uint8_t* pin_ctrl_reg;
 	// to do, init timer and pins
+	timer_set_period(32);
+
+	for(sensor_nodes = 0; sensor_nodes < totalNumPins; sensor_nodes++) {
+		port = digitalPinToPortStruct(pinList[sensor_nodes]);
+		bit_pos = digitalPinToBitPosition(pinList[sensor_nodes]);
+		/* Calculate where pin control register is */
+		pin_ctrl_reg = getPINnCTRLregister(port, bit_pos);
+
+		*pin_ctrl_reg &= ~PORT_PULLUPEN_bm;
+		*pin_ctrl_reg = (*pin_ctrl_reg & ~PORT_ISC_gm) | PORT_ISC_INPUT_DISABLE_gc;
+
+	}
 	
 	time_to_measure_touch_flag = 0;
 
@@ -48,8 +97,7 @@ void TinyTouch::begin(uint8_t *pinList, uint16_t totalNumPins) {
 
 	module_error_code = 0;
 
-	uint16_t    sensor_nodes;
-	touch_ret_t touch_ret = TOUCH_SUCCESS;
+
 
 	ptc_qtlib_acq_gen1 = {totalNumPins, DEF_SENSOR_TYPE, DEF_PTC_CAL_AUTO_TUNE, DEF_SEL_FREQ_INIT};
 
@@ -59,13 +107,13 @@ void TinyTouch::begin(uint8_t *pinList, uint16_t totalNumPins) {
 
 	touch_acq_signals_raw = new uint16_t[totalNumPins];
 
-	for(int i = 0; i < totalNumPins; i++) {
-		ptc_seq_node_cfg1[i].node_xmask = X_NONE;
-		ptc_seq_node_cfg1[i].node_ymask = Y(digitalPinToTouchPin(pinList[i]));
-		ptc_seq_node_cfg1[i].node_csd = 0;
-		ptc_seq_node_cfg1[i].node_rsel_prsc = PRSC_DIV_SEL_4;
-		ptc_seq_node_cfg1[i].node_gain = NODE_GAIN(GAIN_1, GAIN_1);
-		ptc_seq_node_cfg1[i].node_oversampling = FILTER_LEVEL_16;
+	for(sensor_nodes = 0; sensor_nodes < totalNumPins; sensor_nodes++) {
+		ptc_seq_node_cfg1[sensor_nodes].node_xmask = X_NONE;
+		ptc_seq_node_cfg1[sensor_nodes].node_ymask = Y(digitalPinToTouchPin(pinList[sensor_nodes]));
+		ptc_seq_node_cfg1[sensor_nodes].node_csd = 0;
+		ptc_seq_node_cfg1[sensor_nodes].node_rsel_prsc = PRSC_DIV_SEL_4;
+		ptc_seq_node_cfg1[sensor_nodes].node_gain = NODE_GAIN(GAIN_1, GAIN_1);
+		ptc_seq_node_cfg1[sensor_nodes].node_oversampling = FILTER_LEVEL_16;
 	}
 
 
@@ -87,7 +135,7 @@ void TinyTouch::begin(uint8_t *pinList, uint16_t totalNumPins) {
 		qtm_calibrate_sensor_node(&qtlib_acq_set1, sensor_nodes);
 	}
 
-	qtlib_key_grp_config_set1 = {DEF_NUM_SENSORS,
+	qtlib_key_grp_config_set1 = {totalNumPins,
 								DEF_TOUCH_DET_INT,
 								DEF_MAX_ON_DURATION,
 								DEF_ANTI_TCH_DET_INT,
@@ -119,12 +167,19 @@ void TinyTouch::begin(uint8_t *pinList, uint16_t totalNumPins) {
 
 }
 
+void TinyTouch::timer_set_period(const uint8_t val)
+{
+	while (RTC.STATUS & RTC_PERBUSY_bm) /* wait for RTC synchronization */
+		;
+	RTC.PER = val;
+}
+
 static void TinyTouch::qtm_measure_complete_callback(void)
 {
 	touch_postprocess_request = 1u;
 }
 
-static void TinyTouch::qtm_error_callback(uint8_t error)
+void TinyTouch::qtm_error_callback(uint8_t error)
 {
 	module_error_code = error + 1u;
 
@@ -136,6 +191,7 @@ void TinyTouch::touchHandle() {
 	/* check the time_to_measure_touch_flag flag for Touch Acquisition */
 	if (time_to_measure_touch_flag == 1u) {
 		/* Do the acquisition */
+		
 		touch_ret = qtm_ptc_start_measurement_seq(&qtlib_acq_set1, TinyTouch::qtm_measure_complete_callback);
 
 		/* if the Acquistion request was successful then clear the request flag */
@@ -186,5 +242,5 @@ void TinyTouch::end() {
 }
 
 uint16_t TinyTouch::getValue(uint8_t sensor_node) {
-  return get_sensor_node_signal(sensor_node);
+  return (ptc_qtlib_node_stat1[sensor_node].node_acq_signals);
 }
