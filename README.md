@@ -32,7 +32,7 @@ DAC | :heavy_check_mark:
 Servo | :heavy_check_mark:
 EEPROM | :heavy_check_mark:
 NeoPixel | :heavy_check_mark:
-Touch | :hourglass_flowing_sand:
+Touch | :heavy_check_mark:
 E-ink | :hourglass_flowing_sand:
 Motor | :hourglass_flowing_sand:
  
