@@ -25,14 +25,14 @@ Power Consumption | min 2.9μA, max 10mA
 ------------ | -------------
 [UART](https://docs.tinycore.dev/en/latest/usage.html#uart)   | :heavy_check_mark:
 [GPIO](https://docs.tinycore.dev/en/latest/usage.html#gpio)  | :heavy_check_mark:
-ADC | :heavy_check_mark:
-SPI | :heavy_check_mark:
-I²C | :heavy_check_mark:
-DAC | :heavy_check_mark:
-Servo | :heavy_check_mark:
-EEPROM | :heavy_check_mark:
+[ADC](https://docs.tinycore.dev/en/latest/usage.html#adc) | :heavy_check_mark:
+[SPI](https://docs.tinycore.dev/en/latest/usage.html#spi) | :heavy_check_mark:
+[I²C](https://docs.tinycore.dev/en/latest/usage.html#i2c) | :heavy_check_mark:
+[DAC](https://docs.tinycore.dev/en/latest/usage.html#dac) | :heavy_check_mark:
+[Servo](https://docs.tinycore.dev/en/latest/usage.html#servo) | :heavy_check_mark:
+[EEPROM](https://docs.tinycore.dev/en/latest/usage.html#eeprom) | :heavy_check_mark:
 NeoPixel | :heavy_check_mark:
-Touch | :heavy_check_mark:
+[Touch](https://docs.tinycore.dev/en/latest/usage.html#touch) | :heavy_check_mark:
 E-ink | :hourglass_flowing_sand:
 Motor | :hourglass_flowing_sand:
  
