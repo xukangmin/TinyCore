@@ -36,16 +36,35 @@ Touch | :heavy_check_mark:
 E-ink | :hourglass_flowing_sand:
 Motor | :hourglass_flowing_sand:
  
-# Programmer
- Attiny 1 Series use UDPI protocol for programming which only use 1 pin for programming which is PA0. 
- I made a ATMega32u4 firmware and a programmer board [link] for Attiny 1 Series.
- ATMega328p will also works.
-  
-# Installation
+ # Installation
 - Install the current upstream Arduino IDE at the 1.8.7 level or later. The current version is at the [Arduino website](http://www.arduino.cc/en/main/software).
 - Start Arduino and open Preferences window.
 - Enter ```https://raw.githubusercontent.com/xukangmin/TinyCore/master/avr/package/package_tinycore_index.json``` into *Additional Board Manager URLs* field. You can add multiple URLs, separating them with commas.
 - Open Boards Manager from Tools > Board menu and install *TinyCore* platform (and don't forget to select your TinyCore board from Tools > Board menu after installation).
+
+# Programming
+
+There are several ways to upload sketches.
+
+**Upload through TinyCore Programmer**
+
+* Select related com port number and click upload directly, same as programming Arduino Uno
+
+
+**Upload through Arduino Uno or similar boards**
+
+1. Connect Arduno Uno and Tiny Core boards as described [here](https://github.com/ElTangas/jtag2updi).
+2. Arduin IDE->Tools->Programmer->Arduino PIN as UPDI
+3. Arduin IDE->Sketch->Upload using programer
+
+**Upload through Atmel-ICE Programmer**
+
+1. Connect Atmel-ICE UPDI, VTG and GND PIN to TinyCore, supply TinyCore with external voltage, either 3.3V or 5V.
+2. Make sure the green light on Atmel-ICE is on, that means target is properly powered
+3. Arduin IDE->Tools->Programer->Atmel-ICE-UPDI
+4. Arduin IDE->Sketch->Upload using programer
+
+
 
 # Pin Mapping
 
@@ -56,3 +75,5 @@ Motor | :hourglass_flowing_sand:
 - Tiny Core 32 Pinout
 
 ![Pin Mapping](avr/docs/images/TinyCore32_Pinout_V1.png)
+
+Please check [Documentation Site](https://docs.tinycore.dev) for more tutorials and API
