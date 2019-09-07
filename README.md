@@ -51,8 +51,8 @@ Motor | :hourglass_flowing_sand:
 
 - Tiny Core 16 Pinout
 
-![Pin Mapping](avr/docs/images/TinyCore16_Pinout.png)
+![Pin Mapping](avr/docs/images/TinyCore16_Pinout_V1.png)
 
 - Tiny Core 32 Pinout
 
-![Pin Mapping](avr/docs/images/TinyCore32_Pinout.png)
+![Pin Mapping](avr/docs/images/TinyCore32_Pinout_V1.png)
