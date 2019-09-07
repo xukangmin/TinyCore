@@ -23,8 +23,8 @@ Power Consumption | min 2.9μA, max 10mA
 # Arduino Support
  Function |  .
 ------------ | -------------
-UART   | :heavy_check_mark:
-GPIO  | :heavy_check_mark:
+[UART](https://docs.tinycore.dev/en/latest/usage.html#uart)   | :heavy_check_mark:
+[GPIO](https://docs.tinycore.dev/en/latest/usage.html#gpio)  | :heavy_check_mark:
 ADC | :heavy_check_mark:
 SPI | :heavy_check_mark:
 I²C | :heavy_check_mark:
