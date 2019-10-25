@@ -282,8 +282,6 @@ const uint8_t PROGMEM touch_pin_to_channel[] = {
 	3  // 16 PA7
 };
 
-#define digitalPinToAnalogInput(p)  ((p < NUM_TOTAL_PINS) ? pgm_read_byte(analog_pin_to_channel + p) : NOT_A_PIN )
-
 #endif
 
 

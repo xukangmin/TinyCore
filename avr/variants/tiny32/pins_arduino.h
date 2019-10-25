@@ -31,9 +31,9 @@
 //#define NUM_INTERNALLY_USED_PINS    0 // (2 x Chip select + 2 x UART + 4 x IO + LED_BUILTIN + 1 unused pin)
 #define NUM_I2C_PINS                2 // (SDA / SCL)
 #define NUM_SPI_PINS                3 // (MISO / MOSI / SCK)
-#define NUM_TOTAL_PINS              18
+#define NUM_TOTAL_PINS              21
 
-#define EXTERNAL_NUM_INTERRUPTS     18
+#define EXTERNAL_NUM_INTERRUPTS     21
 
 #if (defined(TCD0) && defined(USE_TIMERD0_PWM))
 #define digitalPinHasPWM(p)         ((p) == 1 || (p) == 2 || (p) == 3 || (p) == 6 || (p) == 7 || (p)==12 || (p)==13 || (p) == 14 )
@@ -299,8 +299,6 @@ const uint8_t PROGMEM touch_pin_to_channel[] = {
 	10, // 19 PC4
 	11  // 20 PC5
 };
-
-#define digitalPinToAnalogInput(p)  ((p < NUM_TOTAL_PINS) ? pgm_read_byte(analog_pin_to_channel + p) : NOT_A_PIN )
 
 #endif
 
