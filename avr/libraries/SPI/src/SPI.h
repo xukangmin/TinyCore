@@ -54,7 +54,7 @@
 
 class SPISettings {
   public:
-  SPISettings(uint32_t clock, BitOrder bitOrder, uint8_t dataMode) {
+  SPISettings(uint32_t clock, uint8_t bitOrder, uint8_t dataMode) {
     if (__builtin_constant_p(clock)) {
       init_AlwaysInline(clock, bitOrder, dataMode);
     } else {
@@ -66,11 +66,11 @@ class SPISettings {
   SPISettings() { init_AlwaysInline(4000000, MSBFIRST, SPI_MODE0); }
 
   private:
-  void init_MightInline(uint32_t clock, BitOrder bitOrder, uint8_t dataMode) {
+  void init_MightInline(uint32_t clock, uint8_t bitOrder, uint8_t dataMode) {
     init_AlwaysInline(clock, bitOrder, dataMode);
   }
 
-  void init_AlwaysInline(uint32_t clock, BitOrder bitOrder, uint8_t dataMode) __attribute__((__always_inline__)) {
+  void init_AlwaysInline(uint32_t clock, uint8_t bitOrder, uint8_t dataMode) __attribute__((__always_inline__)) {
     // Clock settings are defined as follows. Note that this shows SPI2X
     // inverted, so the bits form increasing numbers. Also note that
     // fosc/64 appears twice.  If FOSC is 16 Mhz
@@ -162,7 +162,7 @@ class SPIClass {
   void begin();
   void end();
 
-  void setBitOrder(BitOrder order);
+  void setBitOrder(uint8_t order);
   void setDataMode(uint8_t uc_mode);
   void setClockDivider(uint8_t uc_div);
 

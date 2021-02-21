@@ -12,6 +12,39 @@
             {
                "name":"TinyCore Boards",
                "architecture":"avr",
+               "version":"0.0.7",
+               "category":"TinyCore",
+               "url":"https://github.com/xukangmin/TinyCore/releases/download/0.0.7/TinyCore-0.0.7.zip",
+               "archiveFileName":"TinyCore-0.0.7.zip",
+               "checksum":"SHA-256:82c0a53833edfd81a513f06c030ac7d200d58c6cc2753edd2a03d316d25bcae8",
+               "size":"761296",
+               "help":{
+                  "online":"https://docs.tinycore.dev"
+               },
+               "boards":[
+                  {
+                     "name":"TinyCore 16"
+                  },
+                  {
+                     "name":"TinyCore 32"
+                  }
+               ],
+               "toolsDependencies":[
+                  {
+                     "packager":"arduino",
+                     "name":"avr-gcc",
+                     "version":"7.3.0-atmel3.6.1-arduino5"
+                  },
+                  {
+                     "packager":"arduino",
+                     "name":"avrdude",
+                     "version":"6.3.0-arduino16"
+                  }
+               ]
+            },
+            {
+               "name":"TinyCore Boards",
+               "architecture":"avr",
                "version":"0.0.6",
                "category":"TinyCore",
                "url":"https://github.com/xukangmin/TinyCore/releases/download/0.0.6/TinyCore-0.0.6.zip",

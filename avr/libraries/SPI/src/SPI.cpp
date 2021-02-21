@@ -204,7 +204,7 @@ void SPIClass::endTransaction(void)
   }
 }
 
-void SPIClass::setBitOrder(BitOrder order)
+void SPIClass::setBitOrder(uint8_t order)
 {
   if (order == LSBFIRST)
     SPI0.CTRLA |=  (SPI_DORD_bm);
